@@ -19,7 +19,7 @@ import atexit
 from parser import shutdown_parser_pool
 
 app = Flask(__name__, static_folder='static/dist', static_url_path='')
-app.secret_key = os.environ.get('SECRET_KEY', 'avito-scanner-pro-secret-key-2024')
+app.secret_key = os.environ.get('SECRET_KEY', 'avitoscannerpro676767525252567')
 CORS(app, supports_credentials=True)
 
 active_sessions = {}

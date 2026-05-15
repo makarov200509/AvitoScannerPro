@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  avito-scanner:
+    build: .
+    container_name: avito-scanner-pro
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+      - /dev/shm:/dev/shm
+    environment:
+      - SECRET_KEY=avito-scanner-pro-secret-key-change-in-production
+      - PYTHONPATH=/app
+    restart: unless-stopped
