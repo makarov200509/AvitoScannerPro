@@ -26,5 +26,4 @@
 #### 1. Клонирование репозитория
 
 ```bash
-git clone https://github.com/yourusername/avito-scanner-pro.git
-cd avito-scanner-pro
+чуть позже добавлю информацию
