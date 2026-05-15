@@ -160,7 +160,6 @@ const performAnalysis = async () => {
       await userStore.fetchActiveProcesses()
       await userStore.fetchStats()
       
-      // Запускаем периодическую проверку результатов
       pollAnalysisResults(data.session_id)
     } else {
       toastStore.addToast(data.error || 'Ошибка анализа', 'error')
@@ -193,12 +192,11 @@ const pollAnalysisResults = async (sessionId) => {
 
 <style scoped>
 .card {
-  border-radius: 16px;
+  border: 1px solid #1a1a1a;
+  border-radius: 12px;
   padding: 20px;
   margin-bottom: 24px;
-  border: 1px solid;
-  background: inherit;
-  border-color: #1a1a1a;
+  background: #0d0d0d;
 }
 
 body.light-theme .card {
@@ -227,11 +225,10 @@ body.light-theme .card {
 .form-input, .form-select {
   width: 100%;
   padding: 10px 14px;
-  border: 1px solid;
-  border-radius: 8px;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
   font-size: 14px;
   background: #1a1a1a;
-  border-color: #2a2a2a;
   color: #e2e8f0;
 }
 
@@ -239,13 +236,12 @@ body.light-theme .form-input,
 body.light-theme .form-select {
   background: white;
   border-color: #e2e8f0;
-  color: #2d3748;
+  color: #1a202c;
 }
 
 .form-input:focus, .form-select:focus {
   outline: none;
-  border-color: #eab308;
-  box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.2);
+  border-color: #3b82f6;
 }
 
 .form-select {
@@ -258,7 +254,7 @@ body.light-theme .form-select {
 
 .btn {
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -267,15 +263,15 @@ body.light-theme .form-select {
 }
 
 .btn-primary {
-  background: #eab308;
-  color: #1a1a1a;
+  background: #3b82f6;
+  color: white;
   width: 100%;
-  border-radius: 10px;
+  border-radius: 6px;
   font-weight: 600;
 }
 
 .btn-primary:hover {
-  background: #ca8a04;
+  background: #2563eb;
 }
 
 .btn-primary:disabled {
@@ -291,12 +287,11 @@ body.light-theme .form-select {
 }
 
 .stat-card {
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 16px;
   text-align: center;
-  border: 1px solid;
+  border: 1px solid #1f1f1f;
   background: #111111;
-  border-color: #1f1f1f;
 }
 
 body.light-theme .stat-card {
@@ -313,7 +308,7 @@ body.light-theme .stat-card {
 .stat-card-value {
   font-size: 20px;
   font-weight: 700;
-  color: #eab308;
+  color: #3b82f6;
 }
 
 .ad-meta {
@@ -338,15 +333,14 @@ body.light-theme .stat-card {
 }
 
 .iphone-model-btn, .storage-btn {
-  border: 1px solid;
+  border: 1px solid #2a2a2a;
   padding: 8px 4px;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 11px;
   font-weight: 500;
   text-align: center;
   background: #121212;
-  border-color: #1f1f1f;
   color: #e2e8f0;
 }
 
@@ -358,9 +352,9 @@ body.light-theme .storage-btn {
 }
 
 .iphone-model-btn.selected, .storage-btn.selected {
-  background: #eab308;
-  border-color: #eab308;
-  color: #1a1a1a;
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
   font-weight: 600;
 }
 

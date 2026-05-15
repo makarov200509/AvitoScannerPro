@@ -25,11 +25,10 @@ defineProps({
 
 <style scoped>
 .ad-item {
-  border: 1px solid;
-  border-radius: 12px;
+  border: 1px solid #1f1f1f;
+  border-radius: 8px;
   padding: 16px;
   position: relative;
-  border-color: #1f1f1f;
 }
 
 body.light-theme .ad-item {
@@ -46,7 +45,7 @@ body.light-theme .ad-item {
 .ad-price {
   font-size: 18px;
   font-weight: 700;
-  color: #eab308;
+  color: #3b82f6;
   margin-bottom: 8px;
 }
 
@@ -59,7 +58,7 @@ body.light-theme .ad-item {
 }
 
 .ad-link {
-  color: #eab308;
+  color: #3b82f6;
   text-decoration: none;
 }
 

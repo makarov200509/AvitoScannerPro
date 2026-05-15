@@ -6,12 +6,10 @@ import json
 from datetime import datetime, timedelta
 from parser import AvitoParser
 from database import (
-    update_user_stats, check_user_subscription, add_user_subscription,
-    save_user_temp_data, get_user_temp_data, delete_user_temp_data,
+    update_user_stats,
     add_seen_ad, is_ad_seen, save_monitoring_session, init_db,
     create_user, authenticate_user, create_session, get_session, delete_session,
-    delete_all_user_sessions, update_user_last_login, get_user_by_id,
-    get_user_by_telegram_id, link_telegram_to_user
+    delete_all_user_sessions, update_user_last_login, get_user_by_id
 )
 from utils import calculate_price_statistics, format_price, find_city_code
 import os
@@ -48,11 +46,12 @@ def login_required(f):
     def decorated_function(*args, **kwargs):
         session_token = request.cookies.get('session_token')
         if not session_token:
-            return jsonify({'error': 'Unauthorized', 'redirect': '/login'}), 401
+            return jsonify({'error': 'Не авторизован', 'redirect': '/login'}), 401
         
         user_session = get_session(session_token)
         if not user_session:
-            return jsonify({'error': 'Session expired', 'redirect': '/login'}), 401
+            return jsonify({'error': 'Сессия истекла', 'redirect': '/login'}), 401
+
         
         request.user = user_session
         return f(*args, **kwargs)
@@ -85,26 +84,26 @@ def init_web_db():
                 is_read INTEGER DEFAULT 0
             )
         ''')
-        print("Created web_notifications table")
+        print("Создана таблица web_notifications")
     else:
         cursor.execute("PRAGMA table_info(web_notifications)")
         existing_columns = [col[1] for col in cursor.fetchall()]
         
         if 'monitoring_session_id' not in existing_columns:
             cursor.execute('ALTER TABLE web_notifications ADD COLUMN monitoring_session_id TEXT')
-            print("Added monitoring_session_id column")
+            print("Добавлен столбец monitoring_session_id")
         
         if 'search_query' not in existing_columns:
             cursor.execute('ALTER TABLE web_notifications ADD COLUMN search_query TEXT')
-            print("Added search_query column")
+            print("Добавлен столбец search_query")
         
         if 'city' not in existing_columns:
             cursor.execute('ALTER TABLE web_notifications ADD COLUMN city TEXT')
-            print("Added city column")
+            print("Добавлен столбец city")
         
         if 'is_read' not in existing_columns:
             cursor.execute('ALTER TABLE web_notifications ADD COLUMN is_read INTEGER DEFAULT 0')
-            print("Added is_read column")
+            print("Добавлен столбец is_read")
     
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS search_history (
@@ -178,7 +177,7 @@ def init_web_db():
     
     conn.commit()
     conn.close()
-    print("Tables created/verified")
+    print("Таблицы созданы/проверены")
 
 init_db()
 init_web_db()
@@ -229,7 +228,7 @@ def migrate_db():
     
     conn.commit()
     conn.close()
-    print("Database migration completed")
+    print("Миграция базы данных завершена")
 
 migrate_db()
 
@@ -273,7 +272,7 @@ def get_user_analysis_history(user_id, limit=20):
                 'created_at': fix_time(row[4]) if row[4] else row[4]
             })
     except sqlite3.OperationalError as e:
-        print(f"Error in get_user_analysis_history: {e}")
+        print(f"Ошибка в get_user_analysis_history: {e}")
         history = []
     
     conn.close()
@@ -308,7 +307,7 @@ def get_analysis_by_session(session_id, user_id):
                 'ads': ads
             }
     except sqlite3.OperationalError as e:
-        print(f"Error in get_analysis_by_session: {e}")
+        print(f"Ошибка в get_analysis_by_session: {e}")
         conn.close()
     
     return None
@@ -496,14 +495,13 @@ def send_web_notification(user_id, data):
             json.dumps(notification_data, ensure_ascii=False)
         ))
         conn.commit()
-        print(f"[NOTIFICATION] New ad for user {user_id}: {ad.get('title', '')[:50]}")
+        print(f"[УВЕДОМЛЕНИЕ] Новое объявление для пользователя {user_id}: {ad.get('title', '')[:50]}")
     except Exception as e:
-        print(f"Error saving notification: {e}")
+        print(f"Ошибка сохранения уведомления: {e}")
     finally:
         if conn:
             conn.close()
 
-# ============= АВТОРИЗАЦИЯ =============
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -598,7 +596,6 @@ def check_auth():
     
     return jsonify({'authenticated': True, 'username': user_session['username']})
 
-# ============= ЗАЩИЩЕННЫЕ ЭНДПОЙНТЫ =============
 
 @app.route('/')
 def index():
@@ -726,8 +723,8 @@ def stop_process(session_id):
         active_sessions[session_id]['active'] = False
         active_sessions[session_id]['stopped'] = True
         update_process_history(session_id, 'stopped')
-        return jsonify({'success': True, 'message': 'Process stopped'})
-    return jsonify({'success': False, 'error': 'Process not found'}), 404
+        return jsonify({'success': True, 'message': 'Процесс остановлен'})
+    return jsonify({'success': False, 'error': 'Процесс не найден'}), 404
 
 @app.route('/api/process/stop-all', methods=['POST'])
 @login_required
@@ -753,13 +750,13 @@ def search():
     max_price = data.get('max_price')
     
     if not search_query:
-        return jsonify({'error': 'Empty search query'}), 400
-    
+        return jsonify({'error': 'Пустой поисковый запрос'}), 400
+
     active_count = get_user_active_processes_count(user_id)
     if active_count >= MAX_PROCESSES_PER_USER:
         return jsonify({
             'success': False,
-            'error': f'Maximum concurrent processes reached ({MAX_PROCESSES_PER_USER})'
+            'error': f'Достигнуто максимальное количество одновременных процессов ({MAX_PROCESSES_PER_USER})'
         }), 429
     
     city_code, city_name = find_city_code(city_input if city_input else 'Все регионы')
@@ -819,14 +816,14 @@ def perform_search_task(session_id, user_id, search_query, city_code, city_name,
         parser.close()
         
         if not is_active():
-            print(f"[SEARCH] Session {session_id} stopped, not saving results")
+            print(f"[ПОИСК] Сессия {session_id} остановлена, результаты не сохраняются")
             return
         
         update_user_stats(user_id, searches_increment=1, ads_increment=len(ads) if ads else 0)
         save_search_results_to_db(session_id, user_id, search_query, city_name, min_price, max_price, ads or [])
         
     except Exception as e:
-        print(f"Search error: {e}")
+        print(f"Ошибка поиска: {e}")
     finally:
         if session_id in active_sessions:
             if is_session_active_check(session_id):
@@ -836,7 +833,6 @@ def perform_search_task(session_id, user_id, search_query, city_code, city_name,
             del active_sessions[session_id]
 
 def get_analysis_all_ads(session_id, user_id):
-    """Получение всех объявлений из анализа"""
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
     
@@ -854,7 +850,7 @@ def get_analysis_all_ads(session_id, user_id):
             ads = json.loads(row[0]) if row[0] else []
             return ads
     except sqlite3.OperationalError as e:
-        print(f"Error in get_analysis_all_ads: {e}")
+        print(f"Ошибка в get_analysis_all_ads: {e}")
         conn.close()
     
     return []
@@ -868,13 +864,13 @@ def market_analysis():
     city_input = data.get('city')
     
     if not search_query:
-        return jsonify({'error': 'Empty search query'}), 400
+        return jsonify({'error': 'Пустой поисковый запрос'}), 400
     
     active_count = get_user_active_processes_count(user_id)
     if active_count >= MAX_PROCESSES_PER_USER:
         return jsonify({
             'success': False,
-            'error': f'Maximum concurrent processes reached ({MAX_PROCESSES_PER_USER})'
+            'error': f'Достигнуто максимальное количество одновременных процессов ({MAX_PROCESSES_PER_USER})'
         }), 429
     
     city_code, city_name = find_city_code(city_input if city_input else 'Все регионы')
@@ -922,7 +918,7 @@ def perform_analysis_task(session_id, user_id, search_query, city_code, city_nam
         parser.close()
         
         if not is_active():
-            print(f"[ANALYSIS] Session {session_id} stopped, not saving results")
+            print(f"[АНАЛИЗ] Сессия {session_id} остановлена, результаты не сохраняются")
             return
         
         if ads:
@@ -932,7 +928,7 @@ def perform_analysis_task(session_id, user_id, search_query, city_code, city_nam
                 save_analysis_to_db(session_id, user_id, search_query, city_name, ads, stats)
         
     except Exception as e:
-        print(f"Analysis error: {e}")
+        print(f"Ошибка анализа: {e}")
     finally:
         if session_id in active_sessions:
             if is_session_active_check(session_id):
@@ -944,7 +940,6 @@ def perform_analysis_task(session_id, user_id, search_query, city_code, city_nam
 @app.route('/api/analysis-history/<session_id>/all-ads', methods=['GET'])
 @login_required
 def get_analysis_all_ads_route(session_id):
-    """Получить все объявления анализа"""
     user_id = request.user['user_id']
     ads = get_analysis_all_ads(session_id, user_id)
     return jsonify({'ads': ads, 'session_id': session_id})
@@ -962,13 +957,13 @@ def start_monitoring():
     interval = data.get('interval', 5)
     
     if not search_query:
-        return jsonify({'error': 'Empty search query'}), 400
+        return jsonify({'error': 'Пустой поисковый запрос'}), 400
     
     active_count = get_user_active_processes_count(user_id)
     if active_count >= MAX_PROCESSES_PER_USER:
         return jsonify({
             'success': False,
-            'error': f'Maximum concurrent processes reached ({MAX_PROCESSES_PER_USER})'
+            'error': f'Достигнуто максимальное количество одновременных процессов ({MAX_PROCESSES_PER_USER})'
         }), 429
     
     city_code, city_name = find_city_code(city_input if city_input else 'Все регионы')
@@ -1033,7 +1028,7 @@ def get_web_notifications():
             ORDER BY last_created DESC
         ''', (user_id,))
     except sqlite3.OperationalError as e:
-        print(f"Error in query: {e}")
+        print(f"Ошибка в запросе: {e}")
         conn.close()
         return jsonify({'sessions': []})
     
@@ -1095,7 +1090,6 @@ def get_web_notifications():
 @app.route('/api/notifications/mark-session-read/<session_id>', methods=['POST'])
 @login_required
 def mark_session_notifications_read(session_id):
-    """Отметить все уведомления сессии как прочитанные"""
     user_id = request.user['user_id']
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
@@ -1109,7 +1103,7 @@ def mark_session_notifications_read(session_id):
         conn.commit()
         return jsonify({'success': True})
     except Exception as e:
-        print(f"Error marking notifications as read: {e}")
+        print(f"Ошибка отметки уведомлений как прочитанных: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
     finally:
         conn.close()
@@ -1229,8 +1223,6 @@ def delete_account():
     
     cursor.execute('DELETE FROM user_sessions_web WHERE user_id = ?', (user_id,))
     cursor.execute('DELETE FROM user_stats WHERE user_id = ?', (user_id,))
-    cursor.execute('DELETE FROM user_subscriptions WHERE user_id = ?', (user_id,))
-    cursor.execute('DELETE FROM user_temp_data WHERE user_id = ?', (user_id,))
     cursor.execute('DELETE FROM search_history WHERE user_id = ?', (user_id,))
     cursor.execute('DELETE FROM search_results WHERE user_id = ?', (user_id,))
     cursor.execute('DELETE FROM analysis_history WHERE user_id = ?', (user_id,))
@@ -1250,7 +1242,6 @@ def delete_account():
 @app.route('/api/notifications/unread-count', methods=['GET'])
 @login_required
 def get_unread_notifications_count():
-    """Получение количества непрочитанных уведомлений"""
     user_id = request.user['user_id']
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
@@ -1270,19 +1261,16 @@ def get_unread_notifications_count():
 @app.route('/api/pool-stats', methods=['GET'])
 @login_required
 def get_pool_stats():
-    """Получить статистику пула браузеров"""
     from parser import AvitoParser
     parser = AvitoParser()
-    stats = parser.get_pool_stats() if hasattr(parser, 'get_pool_stats') else {'message': 'Not available'}
+    stats = parser.get_pool_stats() if hasattr(parser, 'get_pool_stats') else {'message': 'Недоступно'}
     return jsonify(stats)
 
 def cleanup():
-    """Очистка при завершении"""
-    print("Shutting down parser pool...")
+    print("Завершение работы пула парсера...")
     shutdown_parser_pool()
-    print("Cleanup completed")
+    print("Очистка завершена")
 
-# Зарегистрировать очистку при завершении
 atexit.register(cleanup)
 
 if __name__ == '__main__':
@@ -1290,14 +1278,10 @@ if __name__ == '__main__':
     
     index_path = os.path.join('static/dist', 'index.html')
     if not os.path.exists(index_path):
-        print(f"WARNING: File {index_path} not found!")
+        print(f"ПРЕДУПРЕЖДЕНИЕ: Файл {index_path} не найден!")
     
     import monitoring
     monitoring.set_active_sessions_ref(active_sessions)
-    
-    print("Starting web server...")
-    print(f"Web version available at: http://localhost:5000")
-    print(f"Maximum processes per user: {MAX_PROCESSES_PER_USER}")
     
     try:
         app.run(host='0.0.0.0', port=5000, debug=True, threaded=True, use_reloader=False)

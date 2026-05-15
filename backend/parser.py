@@ -13,13 +13,12 @@ from config import PARSER_SETTINGS
 
 
 class AvitoParser:
-    _semaphore = threading.Semaphore(100)  # Максимум 100 браузеров одновременно
+    _semaphore = threading.Semaphore(100)
     
     def __init__(self):
         self.driver = None
     
     def setup_driver(self):
-        """Настройка Chrome драйвера"""
         chrome_options = Options()
         chrome_options.add_argument("--disable-blink-features=AutomationControlled")
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation", "enable-logging"])
@@ -46,7 +45,6 @@ class AvitoParser:
             raise
 
     def build_avito_url(self, search_query, city_code, price_min=None, price_max=None, page=1):
-        """Построение URL для поиска на Avito с поддержкой пагинации через p="""
         encoded_query = urllib.parse.quote(search_query)
         
         if city_code == 'all':
@@ -56,7 +54,6 @@ class AvitoParser:
             base_url = f"https://www.avito.ru/{city_code}"
             params = [f"q={encoded_query}", "s=104"]
         
-        # Добавляем номер страницы для пагинации
         if page > 1:
             params.append(f"p={page}")
         
@@ -68,7 +65,6 @@ class AvitoParser:
         return base_url + "?" + "&".join(params)
 
     def is_captcha_present(self):
-        """Проверка наличия капчи или защиты"""
         indicators = [
             '//*[contains(text(), "Подтвердите, что вы не робот")]',
             '//*[contains(text(), "Обновите страницу")]',
@@ -85,7 +81,6 @@ class AvitoParser:
         return False
 
     def handle_captcha(self, user_id=None):
-        """Обработка капчи и защиты Avito"""
         print("Обнаружена защита Avito!")
         
         try:
@@ -111,12 +106,10 @@ class AvitoParser:
 
     def parse_avito(self, search_query, city_code, price_min=None, price_max=None, 
                     max_items=50, user_id=None, pages=1, check_active_callback=None):
-        """Основной метод парсинга Avito с пагинацией через URL"""
         
-        # Ждём своей очереди
-        print(f"[QUEUE] Ожидание слота... (активно: {100 - AvitoParser._semaphore._value})")
+        print(f"[QUEUE] Ожидание слота...")
         AvitoParser._semaphore.acquire()
-        print(f"[QUEUE] Слот получен, запускаю браузер")
+        print(f"[QUEUE] Слот получен")
         
         try:
             self.setup_driver()
@@ -126,7 +119,6 @@ class AvitoParser:
                 if check_active_callback and not check_active_callback():
                     break
                 
-                # Строим URL с номером страницы
                 url = self.build_avito_url(search_query, city_code, price_min, price_max, page)
                 print(f"[PARSER] Парсим страницу {page}: {url}")
                 
@@ -152,34 +144,30 @@ class AvitoParser:
                         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, selector)))
                         items = self.driver.find_elements(By.CSS_SELECTOR, selector)
                         if items:
-                            print(f"[PARSER] Страница {page}: найдено {len(items)} карточек")
+                            print(f"[PARSER] Найдено {len(items)} карточек")
                             break
                     except Exception as e:
-                        print(f"[PARSER] Селектор {selector} не сработал: {e}")
                         continue
                 
                 if not items:
-                    print(f"[PARSER] Страница {page}: карточки не найдены, завершаем")
+                    print(f"[PARSER] Карточки не найдены")
                     break
                 
                 time.sleep(2)
                 page_results = self.parse_items(items, max_items - len(all_results))
                 all_results.extend(page_results)
                 
-                print(f"[PARSER] Страница {page}: собрано {len(page_results)} объявлений, всего: {len(all_results)}")
-                
                 if len(all_results) >= max_items:
                     all_results = all_results[:max_items]
                     break
             
-            # Дедупликация
             unique_ads = {}
             for ad in all_results:
                 if ad['ad_id'] not in unique_ads:
                     unique_ads[ad['ad_id']] = ad
             
             final_results = list(unique_ads.values())
-            print(f"[PARSER] Всего обработано {len(final_results)} уникальных объявлений с {pages} страниц")
+            print(f"[PARSER] Всего обработано {len(final_results)} объявлений")
             return final_results
             
         except Exception as e:
@@ -188,10 +176,8 @@ class AvitoParser:
         finally:
             self.close()
             AvitoParser._semaphore.release()
-            print(f"[QUEUE] Слот освобождён, активно: {100 - AvitoParser._semaphore._value}")
 
     def get_price(self, item):
-        """Извлечение цены"""
         price_selectors = [
             '[data-marker="item-price"]',
             '.price-price-ZMrtW', 
@@ -209,41 +195,43 @@ class AvitoParser:
         return "Цена не указана"
 
     def get_location(self, item):
-        """Извлечение местоположения"""
-        location_selectors = [
-            '[data-marker="item-address"]',
-            '.iva-item-location-3yQ4y',
-            '.geo-georeferences-SEtee',
-            '.geo-root-zPwRk',
-            '[class*="geo-address"]',
-            '[class*="location"]',
-            '.style-item-address-3JoB0'
-        ]
-        
-        for selector in location_selectors:
-            try:
-                location_elem = item.find_element(By.CSS_SELECTOR, selector)
-                location_text = location_elem.text.strip()
-                if location_text and len(location_text) > 2:
-                    location_text = ' '.join(location_text.split())
-                    return location_text
-            except NoSuchElementException:
-                continue
         
         try:
-            address_indicators = ['р-н', 'ул.', 'пр-т', 'мкр', 'д.', 'кв.', 'метро', 'Москва', 'Санкт-Петербург']
-            all_elements = item.find_elements(By.XPATH, ".//*")
-            for elem in all_elements:
-                text = elem.text.strip()
-                if any(indicator in text for indicator in address_indicators) and len(text) < 100:
-                    return text
+            price_elem = item.find_element(By.CSS_SELECTOR, '[data-marker="item-price"]')
+            parent = price_elem.find_element(By.XPATH, '..')
+            siblings = parent.find_elements(By.XPATH, './*')
+            
+            for sibling in siblings:
+                text = sibling.text.strip()
+                if text and 5 < len(text) < 80:
+                    if ',' in text and ('мин' in text or 'метро' in text.lower()):
+                        return text.split(',')[0].strip()
+                    if any(hint in text.lower() for hint in ['метро', 'м.', 'район', 'ул.', 'пр-т']):
+                        return text
+        except:
+            pass
+        
+        try:
+            all_text = item.text.split('\n')
+            for line in all_text:
+                line = line.strip()
+                if line and ',' in line and 'мин' in line:
+                    if not any(skip in line for skip in ['₽', 'руб', 'Доставка', 'Рассрочка', 'Б/у']):
+                        return line.split(',')[0].strip()
+        except:
+            pass
+        
+        try:
+            location_elem = item.find_element(By.CSS_SELECTOR, '[data-marker="item-address"]')
+            location_text = location_elem.text.strip()
+            if location_text:
+                return ' '.join(location_text.split())
         except:
             pass
         
         return "Местоположение не указано"
 
     def get_title(self, item):
-        """Извлечение заголовка"""
         title_selectors = [
             '[itemprop="name"]',
             '[data-marker="item-title"]',
@@ -261,7 +249,6 @@ class AvitoParser:
         return "Без названия"
 
     def get_date(self, item):
-        """Извлечение даты публикации"""
         date_selectors = [
             '[data-marker="item-date"]',
             '.iva-item-date-2vwf_'
@@ -278,7 +265,6 @@ class AvitoParser:
         return "Сегодня"
 
     def get_link(self, item):
-        """Извлечение ссылки на объявление"""
         try:
             link_selectors = [
                 'a[href*="/"]',
@@ -300,7 +286,6 @@ class AvitoParser:
         return ""
 
     def parse_items(self, items, max_items=50):
-        """Парсинг списка карточек товаров"""
         try:
             items = items[:max_items]
             results = []
@@ -315,6 +300,9 @@ class AvitoParser:
                     
                     ad_id = link.split('/')[-1].split('?')[0] if link else str(random.randint(100000, 999999))
                     
+                    if location != "Местоположение не указано":
+                        print(f"[DEBUG] Найден адрес: {location}")
+                    
                     results.append({
                         'title': title,
                         'price': price,
@@ -327,15 +315,13 @@ class AvitoParser:
                 except Exception as e:
                     continue
             
-            print(f"Обработано {len(results)} объявлений")
             return results
             
         except Exception as e:
-            print(f"Ошибка парсинга карточек: {e}")
+            print(f"Ошибка parse_items: {e}")
             return []
 
     def close(self):
-        """Закрытие драйвера"""
         if self.driver:
             try:
                 self.driver.quit()
@@ -345,5 +331,4 @@ class AvitoParser:
 
 
 def shutdown_parser_pool():
-    """Заглушка для совместимости с web_app.py"""
-    print("[PARSER] shutdown_parser_pool вызван (ничего не делаем)")
+    print("[PARSER] shutdown_parser_pool вызван")

@@ -16,14 +16,13 @@
     <div class="avatar-menu" :class="{ show: avatarMenuVisible }" @click.stop>
       <div class="avatar-menu-item" @click="showChangePassword">Сменить пароль</div>
       <div class="avatar-menu-item" @click="toggleStatsOnly">Статистика</div>
-      <div class="avatar-menu-item" @click="toggleQrOnly">QR-код бота</div>
-      <div class="avatar-menu-item" @click="showHelp">Инструкция</div>  <!-- НОВЫЙ ПУНКТ -->
+      <div class="avatar-menu-item" @click="showHelp">Инструкция</div>
       <div class="avatar-menu-item danger" @click="handleLogout">Выйти</div>
       <div class="avatar-menu-item danger" @click="showDeleteAccount">Удалить аккаунт</div>
     </div>
     
     <div class="header-controls">
-      <HelpButton @click="showHelp" />  <!-- НОВАЯ КНОПКА ПОМОЩИ -->
+      <button class="help-btn" @click="showHelp">Инструкция</button>
       <button 
         class="reseller-mode" 
         :class="{ active: resellerStore.isActive }" 
@@ -44,7 +43,6 @@ import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import { useResellerStore } from '@/stores/reseller'
 import { useDisplayStore } from '@/stores/display'
-import HelpButton from './HelpButton.vue'
 import avatarImage from '@/assets/avatar.jpg'
 
 const authStore = useAuthStore()
@@ -73,11 +71,6 @@ const handleClickOutside = (event) => {
 
 const toggleStatsOnly = () => {
   displayStore.toggleStatsVisible()
-  avatarMenuVisible.value = false
-}
-
-const toggleQrOnly = () => {
-  displayStore.toggleQrVisible()
   avatarMenuVisible.value = false
 }
 
@@ -116,7 +109,8 @@ onUnmounted(() => {
 
 <style scoped>
 .header {
-  border-radius: 16px;
+  border: 1px solid #1a1a1a;
+  border-radius: 12px;
   padding: 20px 28px;
   margin-bottom: 28px;
   display: flex;
@@ -124,11 +118,8 @@ onUnmounted(() => {
   align-items: center;
   flex-wrap: wrap;
   gap: 20px;
-  border: 1px solid;
-  transition: all 0.3s ease;
+  background: #0d0d0d;
   position: relative;
-  background: inherit;
-  border-color: #1a1a1a;
 }
 
 body.light-theme .header {
@@ -141,7 +132,6 @@ body.light-theme .header {
   align-items: center;
   gap: 16px;
   cursor: pointer;
-  position: relative;
 }
 
 .logo-avatar {
@@ -149,20 +139,18 @@ body.light-theme .header {
   height: 52px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #eab308;
-  transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  border: 2px solid #3b82f6;
   cursor: pointer;
 }
 
 .logo-avatar:hover {
-  transform: scale(1.08);
-  border-color: #ca8a04;
-  box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);
+  border-color: #2563eb;
 }
 
 .logo h1 {
   font-size: 22px;
   font-weight: 600;
+  color: #3b82f6;
 }
 
 .logo p {
@@ -178,15 +166,15 @@ body.light-theme .logo p {
 .avatar-menu {
   position: absolute;
   top: 70px;
-  left: 0;
+  left: 28px;
   background: #0d0d0d;
   border: 1px solid #1a1a1a;
   border-radius: 12px;
   min-width: 220px;
   z-index: 1000;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
   overflow: hidden;
   display: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .avatar-menu.show {
@@ -196,13 +184,12 @@ body.light-theme .logo p {
 body.light-theme .avatar-menu {
   background: white;
   border-color: #e2e8f0;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .avatar-menu-item {
   padding: 12px 16px;
   cursor: pointer;
-  transition: background 0.2s ease;
   font-size: 14px;
   border-bottom: 1px solid #1a1a1a;
 }
@@ -234,18 +221,19 @@ body.light-theme .avatar-menu-item:hover {
   align-items: center;
 }
 
-.reseller-mode, .theme-toggle {
-  border: 1px solid;
+.help-btn,
+.reseller-mode,
+.theme-toggle {
+  border: 1px solid #2a2a2a;
   padding: 8px 16px;
-  border-radius: 12px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.2s ease;
   background: #121212;
-  border-color: #1f1f1f;
   color: #e2e8f0;
 }
 
+body.light-theme .help-btn,
 body.light-theme .reseller-mode,
 body.light-theme .theme-toggle {
   background: #f0f0f0;
@@ -253,33 +241,76 @@ body.light-theme .theme-toggle {
   color: #4a5568;
 }
 
-.reseller-mode:hover, .theme-toggle:hover {
+.help-btn:hover,
+.reseller-mode:hover,
+.theme-toggle:hover {
   background: #1a1a1a;
 }
 
+body.light-theme .help-btn:hover,
 body.light-theme .reseller-mode:hover,
 body.light-theme .theme-toggle:hover {
   background: #e5e5e5;
 }
 
 .reseller-mode.active {
-  background: #eab308 !important;
-  border-color: #eab308 !important;
-  color: #1a1a1a !important;
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
 }
 
+body.light-theme .reseller-mode.active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+/* Мобильная адаптация */
 @media (max-width: 768px) {
   .header {
-    flex-direction: column;
-    text-align: center;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    gap: 12px;
   }
-  .header-controls {
-    justify-content: center;
+  
+  .logo {
+    gap: 12px;
   }
+  
+  .logo-avatar {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .logo h1 {
+    font-size: 16px;
+  }
+  
+  .logo p {
+    font-size: 10px;
+    margin-top: 2px;
+  }
+  
   .avatar-menu {
-    left: 50%;
-    transform: translateX(-50%);
-    top: 80px;
+    top: 56px;
+    left: 16px;
+    min-width: 200px;
+  }
+  
+  .avatar-menu-item {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+  
+  .header-controls {
+    gap: 8px;
+  }
+  
+  .help-btn,
+  .reseller-mode,
+  .theme-toggle {
+    padding: 6px 12px;
+    font-size: 12px;
   }
 }
 </style>

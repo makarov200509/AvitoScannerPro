@@ -49,12 +49,11 @@ const refreshData = async () => {
 
 <style scoped>
 .stats-section {
-  border-radius: 16px;
+  border: 1px solid #1a1a1a;
+  border-radius: 12px;
   padding: 20px;
   margin-bottom: 28px;
-  border: 1px solid;
-  background: inherit;
-  border-color: #1a1a1a;
+  background: #0d0d0d;
 }
 
 body.light-theme .stats-section {
@@ -85,12 +84,11 @@ body.light-theme .stats-section {
 }
 
 .stat-card-large {
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 20px;
   text-align: center;
-  border: 1px solid;
+  border: 1px solid #1f1f1f;
   background: #111111;
-  border-color: #1f1f1f;
 }
 
 body.light-theme .stat-card-large {
@@ -111,7 +109,7 @@ body.light-theme .stat-label {
 .stat-value {
   font-size: 28px;
   font-weight: 700;
-  color: #eab308;
+  color: #3b82f6;
 }
 
 .stat-sub {
@@ -121,13 +119,12 @@ body.light-theme .stat-label {
 }
 
 .btn-secondary {
-  border: 1px solid;
+  border: 1px solid #2a2a2a;
   padding: 6px 14px;
-  border-radius: 10px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
   background: #121212;
-  border-color: #1f1f1f;
   color: #e2e8f0;
 }
 

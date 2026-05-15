@@ -127,7 +127,7 @@ const changePassword = async () => {
 
 .modal {
   background: #0d0d0d;
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 24px;
   width: 90%;
   max-width: 400px;
@@ -150,7 +150,7 @@ body.light-theme .modal {
   padding: 10px 14px;
   background: #111111;
   border: 1px solid #1f1f1f;
-  border-radius: 8px;
+  border-radius: 6px;
   color: #e2e8f0;
   margin-bottom: 16px;
 }
@@ -158,12 +158,12 @@ body.light-theme .modal {
 body.light-theme .modal-input {
   background: white;
   border-color: #e2e8f0;
-  color: #2d3748;
+  color: #1a202c;
 }
 
 .modal-input:focus {
   outline: none;
-  border-color: #eab308;
+  border-color: #3b82f6;
 }
 
 .modal-buttons {
@@ -174,19 +174,19 @@ body.light-theme .modal-input {
 
 .modal-btn {
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   border: none;
 }
 
 .modal-btn-primary {
-  background: #eab308;
-  color: #1a1a1a;
+  background: #3b82f6;
+  color: white;
   font-weight: 600;
 }
 
 .modal-btn-primary:hover {
-  background: #ca8a04;
+  background: #2563eb;
 }
 
 .modal-btn-primary:disabled {
@@ -211,4 +211,4 @@ body.light-theme .modal-btn-secondary {
 body.light-theme .modal-btn-secondary:hover {
   background: #cbd5e1;
 }
-</style>     
+</style>

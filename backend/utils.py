@@ -1,12 +1,7 @@
 import re
 from config import CITIES
 
-def can_user_monitor(user_id):
-    """Всегда возвращает True - без платных подписок"""
-    return True
-
 def calculate_price_statistics(ads):
-    """Расчет статистики цен по списку объявлений"""
     prices = []
     
     for ad in ads:
@@ -45,18 +40,15 @@ def calculate_price_statistics(ads):
     }
 
 def format_price(price):
-    """Форматирование цены для красивого отображения"""
     return f"{price:,}".replace(',', ' ') + ' ₽'
 
 def find_city_code(city_input):
-    """Поиск кода города по названию"""
     for city_key, code in CITIES.items():
         if city_input.lower() == city_key.lower():
             return code, city_key
     return city_input.lower().replace(' ', '_'), city_input
 
 def format_ad_message(ad, index=None):
-    """Форматирование сообщения с информацией об объявлении"""
     prefix = f"{index}. " if index is not None else ""
     
     message = (
@@ -72,7 +64,6 @@ def format_ad_message(ad, index=None):
     return message
 
 def validate_price_input(price_text):
-    """Валидация ввода цены"""
     if not price_text or price_text.lower() in ['нет', 'без', 'none']:
         return None
     

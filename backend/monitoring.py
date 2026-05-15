@@ -6,27 +6,21 @@ from datetime import datetime, timedelta
 from parser import AvitoParser
 from database import update_user_stats, add_seen_ad, is_ad_seen, save_monitoring_session
 
-# Глобальная ссылка на активные сессии
 _active_sessions_ref = None
 
 def set_active_sessions_ref(ref):
-    """Установка ссылки на глобальный словарь активных сессий"""
     global _active_sessions_ref
     _active_sessions_ref = ref
 
 
 def is_session_active(session_id):
-    """Проверка, активна ли сессия"""
     if _active_sessions_ref is not None:
         session = _active_sessions_ref.get(session_id)
         if session:
-            # Сначала проверяем флаг stopped (устанавливается при остановке пользователем)
             if session.get('stopped', False):
                 return False
-            # Затем проверяем флаг active
             if not session.get('active', True):
                 return False
-            # Затем проверяем время окончания для мониторинга
             if session.get('type') == 'monitoring' and session.get('end_time'):
                 try:
                     end_time = datetime.fromisoformat(session['end_time'])
@@ -39,7 +33,6 @@ def is_session_active(session_id):
 
 
 def send_web_notification(user_id, data):
-    """Отправка уведомления для веб-версии"""
     conn = None
     try:
         if data.get('type') != 'new_ad':
@@ -90,7 +83,6 @@ def send_web_notification(user_id, data):
 
 
 def start_web_monitoring_session(session_id, session_data, interval):
-    """Запуск сессии мониторинга для веб-версии"""
     try:
         user_id = session_data['user_id']
         search_query = session_data['query']
@@ -102,11 +94,9 @@ def start_web_monitoring_session(session_id, session_data, interval):
         
         print(f"[MONITORING] Starting monitoring for user {user_id}: {search_query}")
         
-        # Функция для проверки активности сессии
         def is_active():
             return is_session_active(session_id)
         
-        # Проверяем активность перед запуском
         if not is_active():
             print(f"[MONITORING] Session {session_id} not active, aborting start")
             return
@@ -123,30 +113,19 @@ def start_web_monitoring_session(session_id, session_data, interval):
         )
         parser.close()
         
-        # Проверяем активность после получения начальных объявлений
         if not is_active():
             print(f"[MONITORING] Session {session_id} became inactive, aborting")
             return
         
         if not initial_ads:
             print(f"[MONITORING] No initial ads found for {search_query}")
-            # Отправляем уведомление об отсутствии объявлений
-            send_web_notification(user_id, {
-                'type': 'error',
-                'session_id': session_id,
-                'search_query': search_query,
-                'city': city_name,
-                'message': 'Не найдено объявлений по вашему запросу. Мониторинг не запущен.'
-            })
             if _active_sessions_ref and session_id in _active_sessions_ref:
                 del _active_sessions_ref[session_id]
             return
         
-        # Сохраняем ID начальных объявлений как просмотренные
         for ad in initial_ads:
             add_seen_ad(ad['ad_id'], user_id)
         
-        # Сохраняем сессию мониторинга в БД
         save_monitoring_session(
             user_id, search_query, city_name, min_price, max_price,
             monitoring_time, [ad['ad_id'] for ad in initial_ads]
@@ -156,7 +135,6 @@ def start_web_monitoring_session(session_id, session_data, interval):
         
         print(f"[MONITORING] Started. Initial ads: {len(initial_ads)}")
         
-        # Запускаем цикл мониторинга в отдельном потоке
         thread = threading.Thread(
             target=run_monitoring_loop,
             args=(session_id, user_id, search_query, city_code, city_name, 
@@ -174,29 +152,25 @@ def start_web_monitoring_session(session_id, session_data, interval):
 
 def run_monitoring_loop(session_id, user_id, search_query, city_code, city_name, 
                         min_price, max_price, monitoring_time, interval):
-    """Запуск цикла мониторинга в отдельном потоке"""
     try:
         parser = AvitoParser()
         total_new_ads = 0
         start_time = datetime.now()
         end_time = start_time + timedelta(minutes=monitoring_time)
         
-        # Обновляем время окончания в глобальной сессии
         if _active_sessions_ref and session_id in _active_sessions_ref:
             _active_sessions_ref[session_id]['end_time'] = end_time.isoformat()
         
         print(f"[MONITORING] Loop started for session {session_id}, will run until {end_time}")
         
         while datetime.now() < end_time:
-            # Проверяем активность ДО паузы
             if not is_session_active(session_id):
                 print(f"[MONITORING] Session {session_id} stopped by user (before sleep)")
                 break
             
-            # Разбиваем длительный сон на короткие интервалы для быстрой реакции на остановку
             sleep_seconds = interval * 60
             slept = 0
-            check_interval = 5  # проверяем каждые 5 секунд
+            check_interval = 5 
             
             while slept < sleep_seconds:
                 if not is_session_active(session_id):
@@ -205,11 +179,9 @@ def run_monitoring_loop(session_id, user_id, search_query, city_code, city_name,
                 time.sleep(min(check_interval, sleep_seconds - slept))
                 slept += check_interval
             
-            # Проверяем активность после паузы
             if not is_session_active(session_id):
                 break
             
-            # Проверяем время окончания
             if datetime.now() >= end_time:
                 print(f"[MONITORING] Monitoring time ended for session {session_id}")
                 break
@@ -217,11 +189,9 @@ def run_monitoring_loop(session_id, user_id, search_query, city_code, city_name,
             try:
                 print(f"[MONITORING] Checking for new ads...")
                 
-                # Функция для проверки активности
                 def is_active():
                     return is_session_active(session_id)
                 
-                # Получаем текущие объявления
                 current_ads = parser.parse_avito(
                     search_query=search_query,
                     city_code=city_code,
@@ -232,7 +202,6 @@ def run_monitoring_loop(session_id, user_id, search_query, city_code, city_name,
                     check_active_callback=is_active
                 )
                 
-                # Проверяем активность после парсинга
                 if not is_session_active(session_id):
                     print(f"[MONITORING] Session {session_id} became inactive during parsing")
                     break
@@ -241,7 +210,6 @@ def run_monitoring_loop(session_id, user_id, search_query, city_code, city_name,
                     print(f"[MONITORING] No ads found")
                     continue
                 
-                # Ищем новые объявления
                 new_ads = []
                 for ad in current_ads:
                     if not is_ad_seen(ad['ad_id'], user_id):
@@ -249,13 +217,11 @@ def run_monitoring_loop(session_id, user_id, search_query, city_code, city_name,
                         add_seen_ad(ad['ad_id'], user_id)
                         print(f"[MONITORING] New ad found: {ad['title'][:50]}...")
                 
-                # Отправляем уведомления о новых объявлениях
                 if new_ads:
                     total_new_ads += len(new_ads)
                     print(f"[MONITORING] Found {len(new_ads)} new ads for {search_query}")
                     
                     for ad in new_ads:
-                        # Проверяем активность перед отправкой каждого уведомления
                         if not is_session_active(session_id):
                             break
                         send_web_notification(user_id, {
@@ -265,7 +231,7 @@ def run_monitoring_loop(session_id, user_id, search_query, city_code, city_name,
                             'city': city_name,
                             'ad': ad
                         })
-                        time.sleep(0.5)  # небольшая задержка между уведомлениями
+                        time.sleep(0.5)
                     
                     update_user_stats(user_id, ads_increment=len(new_ads))
                 
@@ -273,32 +239,18 @@ def run_monitoring_loop(session_id, user_id, search_query, city_code, city_name,
                 print(f"[MONITORING] Error in monitoring loop: {e}")
                 continue
         
-        # Закрываем парсер
         parser.close()
-        
-        # Отправляем финальное уведомление о завершении
-        if is_session_active(session_id):
-            send_web_notification(user_id, {
-                'type': 'monitoring_completed',
-                'session_id': session_id,
-                'search_query': search_query,
-                'city': city_name,
-                'total_new_ads': total_new_ads,
-                'message': f'✅ Мониторинг завершен!\n\n📋 Запрос: {search_query}\n🏙️ Город: {city_name}\n⏰ Время работы: {monitoring_time} минут\n📊 Найдено новых объявлений: {total_new_ads}'
-            })
         
         print(f"[MONITORING] Monitoring finished for session {session_id}, total new ads: {total_new_ads}")
         
     except Exception as e:
         print(f"[MONITORING] Fatal error in monitoring loop: {e}")
     finally:
-        # Удаляем сессию из глобального словаря
         if _active_sessions_ref and session_id in _active_sessions_ref:
             del _active_sessions_ref[session_id]
 
 
 def get_active_monitoring_sessions(user_id=None):
-    """Получение списка активных сессий мониторинга"""
     if _active_sessions_ref is None:
         return {}
     
@@ -312,7 +264,6 @@ def get_active_monitoring_sessions(user_id=None):
 
 
 def stop_all_user_monitoring(user_id):
-    """Остановка всех мониторингов пользователя"""
     if _active_sessions_ref is None:
         return 0
     

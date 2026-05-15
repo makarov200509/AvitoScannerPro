@@ -132,12 +132,11 @@ onMounted(() => {
 
 <style scoped>
 .card {
-  border-radius: 16px;
+  border: 1px solid #1a1a1a;
+  border-radius: 12px;
   padding: 20px;
   margin-bottom: 24px;
-  border: 1px solid;
-  background: inherit;
-  border-color: #1a1a1a;
+  background: #0d0d0d;
 }
 
 body.light-theme .card {
@@ -157,26 +156,25 @@ body.light-theme .card {
 }
 
 .btn-delete-all {
-  background: #eab308;
-  color: #1a1a1a;
+  background: #3b82f6;
+  color: white;
   border: none;
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
 }
 
 .btn-delete-all:hover {
-  background: #ca8a04;
+  background: #2563eb;
 }
 
 .search-history-item {
-  border: 1px solid;
-  border-radius: 12px;
+  border: 1px solid #1f1f1f;
+  border-radius: 8px;
   margin-bottom: 16px;
   overflow: hidden;
-  border-color: #1f1f1f;
 }
 
 body.light-theme .search-history-item {
@@ -218,28 +216,27 @@ body.light-theme .search-history-header:hover {
 }
 
 .search-meta-price {
-  color: #eab308;
+  color: #3b82f6;
 }
 
 .btn-delete {
-  background: #eab308;
-  color: #1a1a1a;
+  background: #3b82f6;
+  color: white;
   border: none;
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
 }
 
 .btn-delete:hover {
-  background: #ca8a04;
+  background: #2563eb;
 }
 
 .search-results {
   padding: 16px;
-  border-top: 1px solid;
-  border-top-color: #1f1f1f;
+  border-top: 1px solid #1f1f1f;
 }
 
 body.light-theme .search-results {

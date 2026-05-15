@@ -6,7 +6,7 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = ref(false)
   const user = ref(null)
   const loading = ref(false)
-  const authChecked = ref(false) // Добавляем флаг проверки
+  const authChecked = ref(false) 
   
   const checkAuth = async () => {
     try {
@@ -24,7 +24,7 @@ export const useAuthStore = defineStore('auth', () => {
       isAuthenticated.value = false
       user.value = null
     } finally {
-      authChecked.value = true // Проверка завершена
+      authChecked.value = true 
     }
   }
   
@@ -83,7 +83,6 @@ export const useAuthStore = defineStore('auth', () => {
     router.push('/login')
   }
   
-  // Запускаем проверку при создании store
   checkAuth()
   
   return {

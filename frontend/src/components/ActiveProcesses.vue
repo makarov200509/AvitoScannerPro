@@ -97,12 +97,11 @@ onUnmounted(() => {
 
 <style scoped>
 .active-processes {
-  border-radius: 16px;
+  border: 1px solid #1a1a1a;
+  border-radius: 12px;
   padding: 20px;
   margin-bottom: 28px;
-  border: 1px solid;
-  background: inherit;
-  border-color: #1a1a1a;
+  background: #0d0d0d;
 }
 
 body.light-theme .active-processes {
@@ -128,21 +127,19 @@ body.light-theme .active-processes {
 }
 
 .process-item {
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 12px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
-  border-left: 3px solid #eab308;
+  border-left: 3px solid #3b82f6;
   background: #111111;
-  border-color: #1f1f1f;
 }
 
 body.light-theme .process-item {
   background: #fafafa;
-  border-color: #e2e8f0;
 }
 
 .process-info {
@@ -163,21 +160,21 @@ body.light-theme .process-item {
 
 .process-status {
   font-size: 12px;
-  color: #eab308;
+  color: #3b82f6;
 }
 
 .btn-stop, .btn-stop-all {
-  background: #eab308;
-  color: #1a1a1a;
+  background: #3b82f6;
+  color: white;
   border: none;
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .btn-stop:hover, .btn-stop-all:hover {
-  background: #ca8a04;
+  background: #2563eb;
 }
 </style>

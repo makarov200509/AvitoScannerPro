@@ -30,7 +30,6 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
   
-  // Ждем завершения проверки авторизации
   if (!authStore.authChecked) {
     await authStore.checkAuth()
   }

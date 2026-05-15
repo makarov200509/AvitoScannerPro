@@ -141,7 +141,6 @@ const markSessionAsRead = async (sessionId) => {
         }
         session.unread_count = 0
       }
-      // Пересчитываем общий счетчик
       let totalUnread = 0
       for (const s of notificationSessions.value) {
         totalUnread += s.unread_count || 0
@@ -207,12 +206,11 @@ onUnmounted(() => {
 
 <style scoped>
 .card {
-  border-radius: 16px;
+  border: 1px solid #1a1a1a;
+  border-radius: 12px;
   padding: 20px;
   margin-bottom: 24px;
-  border: 1px solid;
-  background: inherit;
-  border-color: #1a1a1a;
+  background: #0d0d0d;
 }
 
 body.light-theme .card {
@@ -232,26 +230,25 @@ body.light-theme .card {
 }
 
 .btn-delete-all {
-  background: #eab308;
-  color: #1a1a1a;
+  background: #3b82f6;
+  color: white;
   border: none;
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
 }
 
 .btn-delete-all:hover {
-  background: #ca8a04;
+  background: #2563eb;
 }
 
 .notification-session-item {
-  border: 1px solid;
-  border-radius: 12px;
+  border: 1px solid #1f1f1f;
+  border-radius: 8px;
   margin-bottom: 16px;
   overflow: hidden;
-  border-color: #1f1f1f;
 }
 
 body.light-theme .notification-session-item {
@@ -293,39 +290,38 @@ body.light-theme .notification-session-header:hover {
 }
 
 .notification-session-meta .has-unread {
-  color: #eab308;
+  color: #3b82f6;
 }
 
 .unread-badge {
   display: inline-block;
-  background: #eab308;
-  color: #1a1a1a;
+  background: #3b82f6;
+  color: white;
   font-size: 10px;
   padding: 2px 8px;
-  border-radius: 12px;
+  border-radius: 10px;
   margin-left: 8px;
   font-weight: 600;
 }
 
 .btn-delete-session {
-  background: #eab308;
-  color: #1a1a1a;
+  background: #3b82f6;
+  color: white;
   border: none;
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
 }
 
 .btn-delete-session:hover {
-  background: #ca8a04;
+  background: #2563eb;
 }
 
 .notification-session-results {
   padding: 16px;
-  border-top: 1px solid;
-  border-top-color: #1f1f1f;
+  border-top: 1px solid #1f1f1f;
 }
 
 body.light-theme .notification-session-results {
@@ -339,14 +335,12 @@ body.light-theme .notification-session-results {
 }
 
 .ad-item {
-  border: 1px solid;
-  border-radius: 12px;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
   padding: 16px;
   position: relative;
-  border-color: #2a2a2a;
-  background: #111111; /* Добавьте темный фон для темной темы */
+  background: #111111;
 }
-
 
 .ad-item.is-read {
   opacity: 1;
@@ -354,7 +348,7 @@ body.light-theme .notification-session-results {
 
 body.light-theme .ad-item {
   border-color: #e2e8f0;
-  background: #ffffff; /* Белый фон для светлой темы */
+  background: white;
 }
 
 .ad-title {
@@ -367,7 +361,7 @@ body.light-theme .ad-item {
 .ad-price {
   font-size: 18px;
   font-weight: 700;
-  color: #eab308;
+  color: #3b82f6;
   margin-bottom: 8px;
 }
 
@@ -380,7 +374,7 @@ body.light-theme .ad-item {
 }
 
 .ad-link {
-  color: #eab308;
+  color: #3b82f6;
   text-decoration: none;
 }
 
@@ -389,11 +383,11 @@ body.light-theme .ad-item {
 }
 
 .btn-delete-notification {
-  background: #eab308;
-  color: #1a1a1a;
+  background: #3b82f6;
+  color: white;
   border: none;
   padding: 4px 10px;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 11px;
   position: absolute;
@@ -403,7 +397,7 @@ body.light-theme .ad-item {
 }
 
 .btn-delete-notification:hover {
-  background: #ca8a04;
+  background: #2563eb;
 }
 
 .empty-history {

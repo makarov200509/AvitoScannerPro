@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useDisplayStore = defineStore('display', () => {
-  const statsVisible = ref(true)
+  const statsVisible = ref(false)
   const qrVisible = ref(false)
   
   const toggleStatsVisible = () => {

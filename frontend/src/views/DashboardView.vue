@@ -8,8 +8,6 @@
     
     <HelpModal v-model:visible="showHelpModal" />
     
-    <QRCodeWidget />
-    
     <StatsCards />
     
     <ActiveProcesses />
@@ -22,36 +20,23 @@
         @click="activeTab = tab.key"
       >
         {{ tab.label }}
-        <!-- Показываем счетчик НЕПРОЧИТАННЫХ уведомлений на вкладке всегда -->
         <span v-if="tab.key === 'notifications' && totalUnreadCount > 0" class="notification-badge">
           {{ totalUnreadCount > 99 ? '99+' : totalUnreadCount }}
         </span>
       </div>
     </div>
     
-    <!-- Поиск -->
     <SearchView v-if="activeTab === 'search'" />
-    
-    <!-- История поисков -->
     <HistoryView v-if="activeTab === 'history'" />
-    
-    <!-- Мониторинг -->
     <MonitoringView v-if="activeTab === 'monitoring'" />
-    
-    <!-- Уведомления -->
     <NotificationsView 
       v-if="activeTab === 'notifications'" 
       @update-count="updateUnreadCount"
       ref="notificationsViewRef"
     />
-    
-    <!-- Анализ рынка -->
     <AnalysisView v-if="activeTab === 'analysis'" />
-    
-    <!-- История анализов -->
     <AnalysisHistoryView v-if="activeTab === 'analysisHistory'" />
     
-    <!-- Модальные окна -->
     <ChangePasswordModal 
       :visible="showChangePasswordModal"
       @update:visible="showChangePasswordModal = $event"
@@ -71,7 +56,6 @@ import { useUserStore } from '@/stores/user'
 import { useResellerStore } from '@/stores/reseller'
 import TheHeader from '@/components/TheHeader.vue'
 import HelpModal from '@/components/HelpModal.vue'
-import QRCodeWidget from '@/components/QRCodeWidget.vue'
 import StatsCards from '@/components/StatsCards.vue'
 import ActiveProcesses from '@/components/ActiveProcesses.vue'
 import ChangePasswordModal from '@/components/ChangePasswordModal.vue'
@@ -107,7 +91,6 @@ const updateUnreadCount = (count) => {
   totalUnreadCount.value = count
 }
 
-// Периодическая проверка непрочитанных уведомлений для обновления счетчика
 const fetchUnreadCount = async () => {
   try {
     const response = await fetch('/api/notifications')
@@ -129,7 +112,6 @@ onMounted(async () => {
   await userStore.fetchStats()
   resellerStore.init()
   
-  // Запускаем периодическую проверку непрочитанных уведомлений
   fetchUnreadCount()
   unreadPollInterval = setInterval(fetchUnreadCount, 15000)
 })
@@ -164,9 +146,8 @@ body.light-theme .tabs {
 .tab {
   padding: 8px 16px;
   background: transparent;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
   font-size: 14px;
   font-weight: 500;
   color: #9ca3af;
@@ -179,28 +160,45 @@ body.light-theme .tab {
 
 .tab.active {
   background: #121212;
-  color: #e2e8f0;
+  color: #3b82f6;
 }
 
 body.light-theme .tab.active {
   background: #f0f0f0;
-  color: #2d3748;
+  color: #3b82f6;
 }
 
 .notification-badge {
   display: inline-block;
-  background: #eab308;
-  color: #1a1a1a;
+  background: #3b82f6;
+  color: white;
   font-size: 11px;
   padding: 2px 7px;
-  border-radius: 12px;
+  border-radius: 10px;
   margin-left: 8px;
   font-weight: 600;
 }
 
 @media (max-width: 768px) {
   .container {
-    padding: 16px;
+    padding: 12px;
+  }
+  
+  .tabs {
+    gap: 6px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+  }
+  
+  .tab {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  
+  .notification-badge {
+    font-size: 9px;
+    padding: 1px 5px;
+    margin-left: 4px;
   }
 }
 </style>

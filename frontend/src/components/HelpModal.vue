@@ -10,7 +10,7 @@
         <div class="help-section">
           <div class="help-section-title">Поиск объявлений</div>
           <div class="help-section-content">
-            <p>1. Введите поисковый запрос </p>
+            <p>1. Введите поисковый запрос</p>
             <p>2. Выберите город из списка (по умолчанию - "Все регионы")</p>
             <p>3. При желании укажите минимальную и максимальную цену</p>
             <p>4. Нажмите кнопку "Найти"</p>
@@ -52,7 +52,7 @@
           <div class="help-section-content">
             <p>Специальный режим для тех, кто профессионально занимается скупкой и перепродажей техники Apple.</p>
             <p>Быстрый выбор любой модели iPhone от 3G до 17 Pro Max</p>
-            <p class="help-note">Режим помогает быстро находить актуальные предложения по конкретным моделям iPhone без ручного ввода запроса. Рекомендуется пользователям, которые регулярно отслеживают цены на Apple-устройства.</p>
+            <p class="help-note">Режим помогает быстро находить актуальные предложения по конкретным моделям iPhone без ручного ввода запроса.</p>
           </div>
         </div>
 
@@ -61,10 +61,9 @@
           <div class="help-section-content">
             <p>Отсканируйте QR-код для перехода в Telegram-бота:</p>
             <p class="help-link">@AvitoScannerProBot</p>
-            <p class="help-note">В Telegram-боте доступны те же функции + уведомления о новых объявлениях (может временно не работать в вашей стране)</p>
+            <p class="help-note">В Telegram-боте доступны те же функции + уведомления о новых объявлениях</p>
           </div>
         </div>
-
 
         <div class="help-section">
           <div class="help-section-title">Статистика</div>
@@ -115,7 +114,7 @@ watch(() => props.visible, (newVal) => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -129,7 +128,7 @@ watch(() => props.visible, (newVal) => {
   display: flex;
   flex-direction: column;
   background: #0d0d0d;
-  border-radius: 20px;
+  border-radius: 12px;
   border: 1px solid #1a1a1a;
 }
 
@@ -165,7 +164,7 @@ body.light-theme .modal-header {
 }
 
 .modal-close:hover {
-  color: #eab308;
+  color: #3b82f6;
 }
 
 .modal-body {
@@ -192,7 +191,7 @@ body.light-theme .modal-footer {
 .help-section-title {
   font-size: 16px;
   font-weight: 600;
-  color: #eab308;
+  color: #3b82f6;
   margin-bottom: 12px;
 }
 
@@ -230,7 +229,7 @@ body.light-theme .help-note {
 }
 
 .help-link {
-  color: #eab308;
+  color: #3b82f6;
   font-family: monospace;
   font-size: 14px;
   font-weight: 600;
@@ -238,7 +237,7 @@ body.light-theme .help-note {
 
 .modal-btn {
   padding: 10px 24px;
-  border-radius: 10px;
+  border-radius: 6px;
   cursor: pointer;
   border: none;
   font-size: 14px;
@@ -246,11 +245,11 @@ body.light-theme .help-note {
 }
 
 .modal-btn-primary {
-  background: #eab308;
-  color: #1a1a1a;
+  background: #3b82f6;
+  color: white;
 }
 
 .modal-btn-primary:hover {
-  background: #ca8a04;
+  background: #2563eb;
 }
 </style>

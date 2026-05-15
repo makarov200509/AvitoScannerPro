@@ -81,7 +81,7 @@ const handleLogin = async () => {
 <style scoped>
 .login-page {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a0a 100%);
+  background: #0a0a0a;
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -89,14 +89,22 @@ const handleLogin = async () => {
   padding: 20px;
 }
 
+body.light-theme .login-page {
+  background: #f5f5f5;
+}
+
 .login-container {
   background: #0d0d0d;
-  border-radius: 24px;
+  border-radius: 16px;
   padding: 40px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 25px 50px -12px rgba(234, 179, 8, 0.15);
-  border: 1px solid #2a2a1a;
+  border: 1px solid #1a1a1a;
+}
+
+body.light-theme .login-container {
+  background: white;
+  border-color: #e2e8f0;
 }
 
 .logo {
@@ -107,10 +115,7 @@ const handleLogin = async () => {
 .logo h1 {
   font-size: 28px;
   font-weight: 600;
-  background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #3b82f6;
   margin-bottom: 8px;
 }
 
@@ -126,21 +131,29 @@ const handleLogin = async () => {
   color: #9ca3af;
 }
 
+body.light-theme .form-label {
+  color: #4a5568;
+}
+
 .form-input {
   width: 100%;
   padding: 12px 16px;
   background: #1a1a1a;
   border: 1px solid #2a2a2a;
-  border-radius: 12px;
+  border-radius: 8px;
   font-size: 14px;
   color: #e2e8f0;
-  transition: all 0.2s ease;
+}
+
+body.light-theme .form-input {
+  background: white;
+  border-color: #e2e8f0;
+  color: #1a202c;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: #eab308;
-  box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.2);
+  border-color: #3b82f6;
 }
 
 .form-input::placeholder {
@@ -150,25 +163,22 @@ const handleLogin = async () => {
 .btn {
   width: 100%;
   padding: 12px;
-  background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
-  color: #1a1a1a;
+  background: #3b82f6;
+  color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
 .btn:hover {
-  background: linear-gradient(135deg, #ca8a04 0%, #b45309 100%);
-  transform: translateY(-1px);
+  background: #2563eb;
 }
 
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
 }
 
 .links {
@@ -177,21 +187,19 @@ const handleLogin = async () => {
 }
 
 .links a {
-  color: #eab308;
+  color: #3b82f6;
   text-decoration: none;
   font-size: 14px;
-  transition: color 0.2s ease;
 }
 
 .links a:hover {
-  color: #ca8a04;
   text-decoration: underline;
 }
 
 .error-message {
   background: rgba(220, 38, 38, 0.1);
   border: 1px solid #dc2626;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 12px;
   margin-bottom: 20px;
   color: #f87171;
@@ -200,12 +208,12 @@ const handleLogin = async () => {
 }
 
 .success-message {
-  background: rgba(234, 179, 8, 0.1);
-  border: 1px solid #eab308;
-  border-radius: 12px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
   padding: 12px;
   margin-bottom: 20px;
-  color: #eab308;
+  color: #3b82f6;
   font-size: 14px;
   text-align: center;
 }

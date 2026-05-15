@@ -29,38 +29,35 @@ const toastStore = useToastStore()
 }
 
 .notification {
-  border-left: 3px solid #eab308;
+  border-left: 3px solid #3b82f6;
   padding: 14px 18px;
-  border-radius: 10px;
+  border-radius: 8px;
   max-width: 360px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   font-size: 13px;
   background: #0d0d0d;
   color: #e2e8f0;
 }
 
 body.light-theme .notification {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   background: white;
   color: #2d3748;
 }
 
 .notification-error {
-  border-left-color: #e53e3e;
+  border-left-color: #dc2626;
 }
 
 .notification-success {
-  border-left-color: #eab308;
+  border-left-color: #3b82f6;
 }
 
 .notification-info {
   border-left-color: #3b82f6;
 }
 
-/* Анимации */
 .toast-enter-active,
 .toast-leave-active {
-  transition: all 0.3s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .toast-enter-from {

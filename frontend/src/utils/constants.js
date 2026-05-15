@@ -1,4 +1,3 @@
-// Города для поиска
 export const CITIES = [
   'Все регионы',
   'Москва',
@@ -29,7 +28,6 @@ export const CITIES = [
   'Владивосток'
 ]
 
-// Модели iPhone для режима перекупа (ВСЕ модели)
 export const IPHONE_MODELS = [
   { name: "iPhone", value: "iPhone", storage: [] },
   { name: "iPhone 3G", value: "iPhone 3G", storage: ["8 ГБ", "16 ГБ"] },
@@ -83,7 +81,6 @@ export const IPHONE_MODELS = [
   { name: "iPhone 17 Pro Max", value: "iPhone 17 Pro Max", storage: ["128 ГБ", "256 ГБ", "512 ГБ", "1 ТБ"] }
 ]
 
-// Временные интервалы для мониторинга
 export const MONITORING_TIMES = [
   { label: "5 минут", value: 5 },
   { label: "15 минут", value: 15 },
@@ -96,7 +93,6 @@ export const MONITORING_TIMES = [
   { label: "8 часов", value: 480 }
 ]
 
-// Интервалы проверки для мониторинга
 export const MONITORING_INTERVALS = [
   { label: "1 минута", value: 1 },
   { label: "2 минуты", value: 2 },

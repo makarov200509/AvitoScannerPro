@@ -5,11 +5,9 @@ import hashlib
 import secrets
 
 def init_db():
-    """Инициализация базы данных и создание таблиц"""
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
-    
-    # Таблица пользователей
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,8 +19,7 @@ def init_db():
             is_active INTEGER DEFAULT 1
         )
     ''')
-    
-    # Таблица сессий пользователей (для веб-версии)
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS user_sessions_web (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,8 +32,7 @@ def init_db():
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
     ''')
-    
-    # Таблица просмотренных объявлений
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS seen_ads (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,21 +41,7 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
-    
-    # Таблица сессий пользователей (для бота)
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS user_sessions (
-            user_id INTEGER PRIMARY KEY,
-            search_query TEXT,
-            city TEXT,
-            price_min INTEGER,
-            price_max INTEGER,
-            monitoring_time INTEGER,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    
-    # Таблица сессий мониторинга
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS monitoring_sessions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -73,8 +55,7 @@ def init_db():
             initial_ads TEXT
         )
     ''')
-    
-    # Таблица статистики пользователей
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS user_stats (
             user_id INTEGER PRIMARY KEY,
@@ -85,32 +66,11 @@ def init_db():
         )
     ''')
     
-    # Таблица подписок пользователей
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS user_subscriptions (
-            user_id INTEGER PRIMARY KEY,
-            subscription_type TEXT DEFAULT 'free',
-            subscription_end TIMESTAMP,
-            telegram_payment_charge_id TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    
-    # Таблица временных данных пользователей
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS user_temp_data (
-            user_id INTEGER PRIMARY KEY,
-            temp_data TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    
     conn.commit()
     conn.close()
 
 
 def create_user(username, password, telegram_id=None):
-    """Создание нового пользователя (без email)"""
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
     
@@ -123,8 +83,7 @@ def create_user(username, password, telegram_id=None):
         ''', (username, password_hash, telegram_id))
         conn.commit()
         user_id = cursor.lastrowid
-        
-        # Создаем статистику для пользователя
+
         cursor.execute('''
             INSERT OR IGNORE INTO user_stats (user_id) VALUES (?)
         ''', (user_id,))
@@ -141,7 +100,6 @@ def create_user(username, password, telegram_id=None):
 
 
 def authenticate_user(username, password):
-    """Аутентификация пользователя"""
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
     
@@ -167,7 +125,6 @@ def authenticate_user(username, password):
 
 
 def create_session(user_id, ip_address=None, user_agent=None):
-    """Создание сессии для пользователя"""
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
     
@@ -186,7 +143,6 @@ def create_session(user_id, ip_address=None, user_agent=None):
 
 
 def get_session(session_token):
-    """Получение сессии по токену"""
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
     
@@ -213,7 +169,6 @@ def get_session(session_token):
 
 
 def delete_session(session_token):
-    """Удаление сессии (выход)"""
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute('DELETE FROM user_sessions_web WHERE session_token = ?', (session_token,))
@@ -222,7 +177,6 @@ def delete_session(session_token):
 
 
 def delete_all_user_sessions(user_id, current_session_token=None):
-    """Удаление всех сессий пользователя (кроме текущей)"""
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
     
@@ -237,7 +191,6 @@ def delete_all_user_sessions(user_id, current_session_token=None):
 
 
 def update_user_last_login(user_id):
-    """Обновление времени последнего входа"""
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?', (user_id,))
@@ -246,7 +199,6 @@ def update_user_last_login(user_id):
 
 
 def get_user_by_id(user_id):
-    """Получение пользователя по ID"""
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
     cursor.execute('SELECT id, username, telegram_id, created_at, last_login FROM users WHERE id = ?', (user_id,))
@@ -264,34 +216,7 @@ def get_user_by_id(user_id):
     return None
 
 
-def get_user_by_telegram_id(telegram_id):
-    """Получение пользователя по Telegram ID"""
-    conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
-    cursor = conn.cursor()
-    cursor.execute('SELECT id, username, telegram_id FROM users WHERE telegram_id = ?', (telegram_id,))
-    user = cursor.fetchone()
-    conn.close()
-    
-    if user:
-        return {
-            'id': user[0],
-            'username': user[1],
-            'telegram_id': user[2]
-        }
-    return None
-
-
-def link_telegram_to_user(user_id, telegram_id):
-    """Привязка Telegram аккаунта к пользователю"""
-    conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
-    cursor = conn.cursor()
-    cursor.execute('UPDATE users SET telegram_id = ? WHERE id = ?', (telegram_id, user_id))
-    conn.commit()
-    conn.close()
-
-
 def update_user_stats(user_id, searches_increment=0, ads_increment=0, monitoring_increment=0):
-    """Обновление статистики пользователя"""
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
     
@@ -308,111 +233,7 @@ def update_user_stats(user_id, searches_increment=0, ads_increment=0, monitoring
     conn.close()
 
 
-def add_user_subscription(user_id, subscription_type, days, charge_id):
-    """Добавление или обновление подписки пользователя"""
-    conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
-    cursor = conn.cursor()
-    
-    subscription_end = datetime.now() + timedelta(days=days)
-    
-    cursor.execute('''
-        INSERT OR REPLACE INTO user_subscriptions 
-        (user_id, subscription_type, subscription_end, telegram_payment_charge_id)
-        VALUES (?, ?, ?, ?)
-    ''', (user_id, subscription_type, subscription_end, charge_id))
-    
-    conn.commit()
-    conn.close()
-
-
-def check_user_subscription(user_id):
-    """Проверка активной подписки пользователя"""
-    conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        SELECT subscription_type, subscription_end 
-        FROM user_subscriptions 
-        WHERE user_id = ? AND subscription_end > CURRENT_TIMESTAMP
-    ''', (user_id,))
-    
-    result = cursor.fetchone()
-    conn.close()
-    
-    if result:
-        end_date = result[1]
-        if isinstance(end_date, str):
-            try:
-                end_date = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
-            except:
-                end_date = datetime.now() + timedelta(days=1)
-        
-        return {
-            'type': result[0],
-            'end_date': end_date,
-            'active': True
-        }
-    return {'active': False}
-
-
-def save_user_temp_data(user_id, temp_data):
-    """Сохранение временных данных пользователя"""
-    conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        INSERT OR REPLACE INTO user_temp_data 
-        (user_id, temp_data) 
-        VALUES (?, ?)
-    ''', (user_id, json.dumps(temp_data)))
-    
-    conn.commit()
-    conn.close()
-
-
-def get_user_temp_data(user_id):
-    """Получение временных данных пользователя"""
-    conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
-    cursor = conn.cursor()
-    
-    cursor.execute('SELECT temp_data FROM user_temp_data WHERE user_id = ?', (user_id,))
-    result = cursor.fetchone()
-    conn.close()
-    
-    if result and result[0]:
-        return json.loads(result[0])
-    return None
-
-
-def delete_user_temp_data(user_id):
-    """Удаление временных данных пользователя"""
-    conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
-    cursor = conn.cursor()
-    
-    cursor.execute('DELETE FROM user_temp_data WHERE user_id = ?', (user_id,))
-    conn.commit()
-    conn.close()
-
-
-def save_monitoring_session(user_id, search_query, city, price_min, price_max, end_time, initial_ads):
-    """Сохранение сессии мониторинга"""
-    conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        INSERT INTO monitoring_sessions 
-        (user_id, search_query, city, price_min, price_max, end_time, initial_ads)
-        VALUES (?, ?, ?, ?, ?, datetime(CURRENT_TIMESTAMP, ?), ?)
-    ''', (user_id, search_query, city, price_min, price_max, f'+{end_time} minutes', json.dumps(initial_ads)))
-    
-    session_id = cursor.lastrowid
-    conn.commit()
-    conn.close()
-    return session_id
-
-
 def add_seen_ad(ad_id, user_id):
-    """Добавление просмотренного объявления"""
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
     
@@ -429,7 +250,6 @@ def add_seen_ad(ad_id, user_id):
 
 
 def is_ad_seen(ad_id, user_id):
-    """Проверка, было ли объявление уже просмотрено"""
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
     
@@ -441,3 +261,19 @@ def is_ad_seen(ad_id, user_id):
     conn.close()
     
     return result is not None
+
+
+def save_monitoring_session(user_id, search_query, city, price_min, price_max, end_time, initial_ads):
+    conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        INSERT INTO monitoring_sessions 
+        (user_id, search_query, city, price_min, price_max, end_time, initial_ads)
+        VALUES (?, ?, ?, ?, ?, datetime(CURRENT_TIMESTAMP, ?), ?)
+    ''', (user_id, search_query, city, price_min, price_max, f'+{end_time} minutes', json.dumps(initial_ads)))
+    
+    session_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+    return session_id

@@ -1,8 +1,3 @@
-BOT_TOKEN = "8428542909:AAHLv5HrfJKSV0GN9JrUN0_feREnary5yXI"
-
-# Провайдер для платежей (тестовый) - больше не нужен, но оставим для совместимости
-PAYMENT_PROVIDER_TOKEN = "632593626:TEST:sandbox_i87891302849"
-
 CITIES = {
     'Все регионы': 'all',
     'Москва': 'moskva',
@@ -51,7 +46,6 @@ MONITORING_INTERVALS = {
     '5 минут': 5
 }
 
-# Настройки парсера
 PARSER_SETTINGS = {
     'default_max_items': 200,
     'max_pages': 4,

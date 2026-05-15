@@ -15,7 +15,6 @@
           class="analysis-history-item"
           :class="{ expanded: expandedSessions[item.session_id] }"
         >
-          <!-- Заголовок - всегда виден, при клике раскрывается статистика и кнопка -->
           <div class="analysis-history-header" @click="toggleSession(item.session_id)">
             <div class="analysis-info">
               <div class="analysis-query">{{ item.search_query }}</div>
@@ -28,14 +27,11 @@
             </div>
           </div>
           
-          <!-- Статистика и кнопка - показываются сразу при разворачивании -->
           <div class="analysis-results" v-if="expandedSessions[item.session_id]">
-            <!-- Загрузчик -->
             <div v-if="!analysisResults[item.session_id]" class="loading-results">
               Загрузка статистики...
             </div>
             
-            <!-- Статистика цен - всегда видна после загрузки -->
             <template v-else>
               <div class="stats-grid">
                 <div class="stat-card">
@@ -56,7 +52,6 @@
                 </div>
               </div>
               
-              <!-- Кнопка показа объявлений -->
               <div class="show-all-ads-btn-container">
                 <button 
                   class="btn-show-all-ads" 
@@ -68,7 +63,6 @@
                 </button>
               </div>
               
-              <!-- Список объявлений -->
               <div class="ad-list" v-if="showingAllAds[item.session_id]">
                 <div v-if="allAdsLoading[item.session_id]" class="loading-results">
                   Загрузка объявлений...
@@ -216,14 +210,11 @@ onMounted(() => {
 
 <style scoped>
 .card {
-  border-radius: 16px;
+  border: 1px solid #1a1a1a;
+  border-radius: 12px;
   padding: 20px;
   margin-bottom: 24px;
-  border: 1px solid;
-  background: inherit;
-  border-color: #1a1a1a;
-  width: 100%;
-  max-width: 100%;
+  background: #0d0d0d;
 }
 
 body.light-theme .card {
@@ -243,26 +234,25 @@ body.light-theme .card {
 }
 
 .btn-delete-all {
-  background: #eab308;
-  color: #1a1a1a;
+  background: #3b82f6;
+  color: white;
   border: none;
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
 }
 
 .btn-delete-all:hover {
-  background: #ca8a04;
+  background: #2563eb;
 }
 
 .analysis-history-item {
-  border: 1px solid;
-  border-radius: 12px;
+  border: 1px solid #1f1f1f;
+  border-radius: 8px;
   margin-bottom: 16px;
   overflow: hidden;
-  border-color: #1f1f1f;
 }
 
 body.light-theme .analysis-history-item {
@@ -304,24 +294,23 @@ body.light-theme .analysis-history-header:hover {
 }
 
 .btn-delete {
-  background: #eab308;
-  color: #1a1a1a;
+  background: #3b82f6;
+  color: white;
   border: none;
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
 }
 
 .btn-delete:hover {
-  background: #ca8a04;
+  background: #2563eb;
 }
 
 .analysis-results {
   padding: 16px;
-  border-top: 1px solid;
-  border-top-color: #1f1f1f;
+  border-top: 1px solid #1f1f1f;
 }
 
 body.light-theme .analysis-results {
@@ -336,12 +325,11 @@ body.light-theme .analysis-results {
 }
 
 .stat-card {
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 16px;
   text-align: center;
-  border: 1px solid;
+  border: 1px solid #1f1f1f;
   background: #111111;
-  border-color: #1f1f1f;
 }
 
 body.light-theme .stat-card {
@@ -358,7 +346,7 @@ body.light-theme .stat-card {
 .stat-card-value {
   font-size: 20px;
   font-weight: 700;
-  color: #eab308;
+  color: #3b82f6;
 }
 
 .show-all-ads-btn-container {
@@ -371,11 +359,10 @@ body.light-theme .stat-card {
   border: none;
   color: #e2e8f0;
   padding: 10px 24px;
-  border-radius: 10px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
-  transition: all 0.2s ease;
   width: auto;
   min-width: 200px;
 }
