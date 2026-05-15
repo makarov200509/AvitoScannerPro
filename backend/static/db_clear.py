@@ -1,0 +1,11 @@
+import sqlite3
+conn = sqlite3.connect('avito_bot.db')
+cursor = conn.cursor()
+cursor.execute('DELETE FROM analysis_history')
+cursor.execute('DELETE FROM search_history')
+cursor.execute('DELETE FROM search_results')
+cursor.execute('DELETE FROM web_notifications')
+cursor.execute('DELETE FROM user_temp_data')
+conn.commit()
+conn.close()
+print('база данных очищена')
