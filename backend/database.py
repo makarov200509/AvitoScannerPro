@@ -1,7 +1,7 @@
 import sqlite3
 import json
 from datetime import datetime, timedelta
-import hashlib
+import bcrypt
 import secrets
 
 def init_db():
@@ -74,7 +74,8 @@ def create_user(username, password, telegram_id=None):
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
     
-    password_hash = hashlib.sha256(password.encode()).hexdigest()
+    salt = bcrypt.gensalt()
+    password_hash = bcrypt.hashpw(password.encode('utf-8'), salt)
     
     try:
         cursor.execute('''
@@ -103,24 +104,24 @@ def authenticate_user(username, password):
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
     
-    password_hash = hashlib.sha256(password.encode()).hexdigest()
-    
     cursor.execute('''
-        SELECT id, username, telegram_id, is_active
+        SELECT id, username, password_hash, telegram_id, is_active
         FROM users 
-        WHERE username = ? AND password_hash = ? AND is_active = 1
-    ''', (username, password_hash))
+        WHERE username = ? AND is_active = 1
+    ''', (username,))
     
     user = cursor.fetchone()
     conn.close()
     
     if user:
-        return {
-            'id': user[0],
-            'username': user[1],
-            'telegram_id': user[2],
-            'is_active': user[3]
-        }
+        stored_hash = user[2]
+        if bcrypt.checkpw(password.encode('utf-8'), stored_hash):
+            return {
+                'id': user[0],
+                'username': user[1],
+                'telegram_id': user[3],
+                'is_active': user[4]
+            }
     return None
 
 

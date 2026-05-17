@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import router from '@/router'
+import { fetchCsrfToken } from '@/utils/csrf'
 
 export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = ref(false)
   const user = ref(null)
   const loading = ref(false)
-  const authChecked = ref(false) 
+  const authChecked = ref(false)
   
   const checkAuth = async () => {
     try {
@@ -16,6 +17,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (data.authenticated) {
         isAuthenticated.value = true
         user.value = data.user
+        await fetchCsrfToken()
       } else {
         isAuthenticated.value = false
         user.value = null
@@ -24,7 +26,7 @@ export const useAuthStore = defineStore('auth', () => {
       isAuthenticated.value = false
       user.value = null
     } finally {
-      authChecked.value = true 
+      authChecked.value = true
     }
   }
   
@@ -42,6 +44,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (response.ok && data.success) {
         isAuthenticated.value = true
         user.value = data.user
+        await fetchCsrfToken()
         return { success: true }
       } else {
         return { success: false, error: data.error || 'Ошибка входа' }
@@ -80,6 +83,7 @@ export const useAuthStore = defineStore('auth', () => {
     await fetch('/api/logout', { method: 'POST' })
     isAuthenticated.value = false
     user.value = null
+    sessionStorage.removeItem('csrf_token')
     router.push('/login')
   }
   

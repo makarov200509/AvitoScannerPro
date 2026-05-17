@@ -6,7 +6,7 @@
       class="notification"
       :class="'notification-' + toast.type"
     >
-      <div v-html="toast.message"></div>
+      <div>{{ toast.message }}</div>
     </div>
   </TransitionGroup>
 </template>

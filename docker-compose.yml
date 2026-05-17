@@ -9,7 +9,6 @@ services:
     volumes:
       - ./data:/app/data
       - /dev/shm:/dev/shm
-    environment:
-      - SECRET_KEY=avito-scanner-pro-secret-key-change-in-production
-      - PYTHONPATH=/app
+    env_file:
+      - .env
     restart: unless-stopped

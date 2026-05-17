@@ -1,9 +1,13 @@
+from dotenv import load_dotenv
+load_dotenv()
 from flask import Flask, send_from_directory, request, jsonify, send_file, make_response
 from flask_cors import CORS
 import threading
 import sqlite3
 import json
 from datetime import datetime, timedelta
+import secrets
+import os
 from parser import AvitoParser
 from database import (
     update_user_stats,
@@ -12,14 +16,23 @@ from database import (
     delete_all_user_sessions, update_user_last_login, get_user_by_id
 )
 from utils import calculate_price_statistics, format_price, find_city_code
-import os
 import uuid
 from functools import wraps
 import atexit
 from parser import shutdown_parser_pool
+import bcrypt
 
 app = Flask(__name__, static_folder='static/dist', static_url_path='')
-app.secret_key = os.environ.get('SECRET_KEY', 'avitoscannerpro676767525252567')
+
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    if os.environ.get('FLASK_ENV') == 'production':
+        raise RuntimeError('SECRET_KEY environment variable is not set in production!')
+    else:
+        print("WARNING: Using temporary secret key. Set SECRET_KEY environment variable for production!")
+        SECRET_KEY = secrets.token_hex(32)
+
+app.secret_key = SECRET_KEY
 CORS(app, supports_credentials=True)
 
 active_sessions = {}
@@ -27,6 +40,28 @@ search_results_store = {}
 MAX_PROCESSES_PER_USER = 7
 
 TIME_OFFSET_HOURS = 3
+
+def generate_csrf_token():
+    from flask import session
+    if 'csrf_token' not in session:
+        session['csrf_token'] = secrets.token_hex(32)
+    return session['csrf_token']
+
+def validate_csrf_token():
+    from flask import session
+    token = request.headers.get('X-CSRF-Token')
+    if not token:
+        return False
+    return token == session.get('csrf_token')
+
+def csrf_protect(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if request.method in ['POST', 'PUT', 'DELETE', 'PATCH']:
+            if not validate_csrf_token():
+                return jsonify({'error': 'CSRF token validation failed'}), 403
+        return f(*args, **kwargs)
+    return decorated_function
 
 def fix_time(timestamp):
     if not timestamp:
@@ -51,7 +86,6 @@ def login_required(f):
         user_session = get_session(session_token)
         if not user_session:
             return jsonify({'error': 'Сессия истекла', 'redirect': '/login'}), 401
-
         
         request.user = user_session
         return f(*args, **kwargs)
@@ -502,6 +536,11 @@ def send_web_notification(user_id, data):
         if conn:
             conn.close()
 
+@app.route('/api/csrf-token', methods=['GET'])
+@login_required
+def get_csrf_token():
+    token = generate_csrf_token()
+    return jsonify({'csrf_token': token})
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -552,7 +591,16 @@ def login():
             'username': user['username']
         }
     })
-    response.set_cookie('session_token', session_token, httponly=True, max_age=7*24*3600, samesite='Lax')
+    
+    is_secure = os.environ.get('FLASK_ENV') == 'production'
+    response.set_cookie(
+        'session_token', 
+        session_token, 
+        httponly=True, 
+        secure=is_secure,
+        samesite='Strict',
+        max_age=7*24*3600
+    )
     return response
 
 @app.route('/api/logout', methods=['POST'])
@@ -595,7 +643,6 @@ def check_auth():
         return jsonify({'authenticated': False})
     
     return jsonify({'authenticated': True, 'username': user_session['username']})
-
 
 @app.route('/')
 def index():
@@ -661,6 +708,7 @@ def get_search_history_results(session_id):
 
 @app.route('/api/search-history/<session_id>', methods=['DELETE'])
 @login_required
+@csrf_protect
 def delete_search_history(session_id):
     user_id = request.user['user_id']
     delete_search_session(session_id, user_id)
@@ -682,6 +730,7 @@ def get_analysis_history_results(session_id):
 
 @app.route('/api/analysis-history/<session_id>', methods=['DELETE'])
 @login_required
+@csrf_protect
 def delete_analysis_history(session_id):
     user_id = request.user['user_id']
     delete_analysis_session(session_id, user_id)
@@ -717,6 +766,7 @@ def get_active_processes():
 
 @app.route('/api/process/stop/<session_id>', methods=['POST'])
 @login_required
+@csrf_protect
 def stop_process(session_id):
     user_id = request.user['user_id']
     if session_id in active_sessions and active_sessions[session_id].get('user_id') == user_id:
@@ -728,6 +778,7 @@ def stop_process(session_id):
 
 @app.route('/api/process/stop-all', methods=['POST'])
 @login_required
+@csrf_protect
 def stop_all_processes():
     user_id = request.user['user_id']
     stopped = []
@@ -741,6 +792,7 @@ def stop_all_processes():
 
 @app.route('/api/search', methods=['POST'])
 @login_required
+@csrf_protect
 def search():
     data = request.json
     user_id = request.user['user_id']
@@ -857,6 +909,7 @@ def get_analysis_all_ads(session_id, user_id):
 
 @app.route('/api/market-analysis', methods=['POST'])
 @login_required
+@csrf_protect
 def market_analysis():
     data = request.json
     user_id = request.user['user_id']
@@ -946,6 +999,7 @@ def get_analysis_all_ads_route(session_id):
 
 @app.route('/api/monitoring/start', methods=['POST'])
 @login_required
+@csrf_protect
 def start_monitoring():
     data = request.json
     user_id = request.user['user_id']
@@ -1089,6 +1143,7 @@ def get_web_notifications():
 
 @app.route('/api/notifications/mark-session-read/<session_id>', methods=['POST'])
 @login_required
+@csrf_protect
 def mark_session_notifications_read(session_id):
     user_id = request.user['user_id']
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
@@ -1110,6 +1165,7 @@ def mark_session_notifications_read(session_id):
 
 @app.route('/api/notifications/clear', methods=['POST'])
 @login_required
+@csrf_protect
 def clear_notifications():
     user_id = request.user['user_id']
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
@@ -1121,6 +1177,7 @@ def clear_notifications():
 
 @app.route('/api/notifications/clear-session/<session_id>', methods=['DELETE'])
 @login_required
+@csrf_protect
 def clear_session_notifications_route(session_id):
     user_id = request.user['user_id']
     delete_session_notifications(session_id, user_id)
@@ -1128,6 +1185,7 @@ def clear_session_notifications_route(session_id):
 
 @app.route('/api/notifications/delete/<int:notification_id>', methods=['DELETE'])
 @login_required
+@csrf_protect
 def delete_notification_route(notification_id):
     user_id = request.user['user_id']
     delete_single_notification(notification_id, user_id)
@@ -1179,6 +1237,7 @@ def get_avatar():
 
 @app.route('/api/change-password', methods=['POST'])
 @login_required
+@csrf_protect
 def change_password():
     user_id = request.user['user_id']
     data = request.json
@@ -1191,20 +1250,18 @@ def change_password():
     if len(new_password) < 4:
         return jsonify({'error': 'Новый пароль должен содержать минимум 4 символа'}), 400
     
-    import hashlib
-    current_hash = hashlib.sha256(current_password.encode()).hexdigest()
-    
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()
     
     cursor.execute('SELECT password_hash FROM users WHERE id = ?', (user_id,))
     row = cursor.fetchone()
     
-    if not row or row[0] != current_hash:
+    if not row or not bcrypt.checkpw(current_password.encode('utf-8'), row[0]):
         conn.close()
         return jsonify({'error': 'Неверный текущий пароль'}), 401
     
-    new_hash = hashlib.sha256(new_password.encode()).hexdigest()
+    salt = bcrypt.gensalt()
+    new_hash = bcrypt.hashpw(new_password.encode('utf-8'), salt)
     cursor.execute('UPDATE users SET password_hash = ? WHERE id = ?', (new_hash, user_id))
     conn.commit()
     conn.close()
@@ -1215,6 +1272,7 @@ def change_password():
 
 @app.route('/api/delete-account', methods=['POST'])
 @login_required
+@csrf_protect
 def delete_account():
     user_id = request.user['user_id']
     
@@ -1283,7 +1341,17 @@ if __name__ == '__main__':
     import monitoring
     monitoring.set_active_sessions_ref(active_sessions)
     
+    is_secure = os.environ.get('FLASK_ENV') == 'production'
+    debug_mode = os.environ.get('FLASK_ENV') != 'production'
+    
     try:
-        app.run(host='0.0.0.0', port=5000, debug=True, threaded=True, use_reloader=False)
+        app.run(
+            host='0.0.0.0', 
+            port=5000, 
+            debug=debug_mode, 
+            threaded=True, 
+            use_reloader=False,
+            ssl_context='adhoc' if is_secure else None
+        )
     finally:
         cleanup()

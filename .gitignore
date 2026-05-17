@@ -23,6 +23,8 @@ logs/
 .env
 .env.local
 .env.*.local
+.env.example
+!env.example
 config_local.py
 secret_config.py
 
@@ -49,6 +51,8 @@ static/assets/
 *_token*
 *BOT_TOKEN*
 *API_KEY*
+*SECRET_KEY*
+*SECRET*
 
 *.tmp
 *.cache
@@ -62,7 +66,6 @@ temp_*.py
 fake_*.py
 fake_bot.py
 
-*.html
 coverage/
 *.xml
 
@@ -77,11 +80,42 @@ sessions/
 .docker/
 docker-compose.override.yml
 
-.vscode/
-
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
 migrations/
 alembic/
+
+
+flask_session/
+session_data/
+
+*.db.bak
+*.sqlite.bak
+*.sqlite3.bak
+
+config.py.bak
+config_local.py.bak
+database.py.bak
+
+*.log.gz
+*.log.zip
+
+*.key
+*.pem
+*.crt
+*.p12
+
+*.pid
+*.sock
+*.socket
+
+/secrets/
+/secrets.*/
+
+security_report/
+vulnerability_report/
+
+user_data.db
+profiles.db

@@ -19,18 +19,17 @@ RUN wget -q https://storage.googleapis.com/chrome-for-testing-public/latest/linu
     && chmod +x /usr/local/bin/chromedriver \
     && rm -rf chromedriver-linux64.zip chromedriver-linux64
 
+COPY backend/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
 COPY backend/ ./backend/
 COPY frontend/dist/ ./static/
-
-COPY backend/requirements.txt ./requirements.txt
-
-RUN pip install --no-cache-dir -r requirements.txt
 
 RUN mkdir -p /app/data
 VOLUME ["/app/data"]
 
 ENV PYTHONUNBUFFERED=1
-ENV SECRET_KEY=avito-scanner-pro-secret-key-change-in-production
+ENV PYTHONPATH=/app/backend
 
 EXPOSE 5000
 
