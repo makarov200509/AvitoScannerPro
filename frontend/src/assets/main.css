@@ -58,6 +58,61 @@ input[type="number"] {
   appearance: textfield;
 }
 
+
+.iphone-model-btn,
+.storage-btn {
+  background: #121212 !important;
+  border: 1px solid #2a2a2a !important;
+  color: #e2e8f0 !important;
+  transition: all 0.2s ease !important;
+}
+
+body.light-theme .iphone-model-btn,
+body.light-theme .storage-btn {
+  background: #f0f0f0 !important;
+  border-color: #e2e8f0 !important;
+  color: #4a5568 !important;
+}
+
+/* Hover эффекты */
+.iphone-model-btn:hover,
+.storage-btn:hover {
+  background: #2a2a2a !important;
+}
+
+body.light-theme .iphone-model-btn:hover,
+body.light-theme .storage-btn:hover {
+  background: #e5e5e5 !important;
+}
+
+.iphone-model-btn.selected,
+.storage-btn.selected {
+  background: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.iphone-model-btn.selected:hover,
+.storage-btn.selected:hover {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+}
+
+body.light-theme .iphone-model-btn.selected,
+body.light-theme .storage-btn.selected {
+  background: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: white !important;
+}
+
+body.light-theme .iphone-model-btn.selected:hover,
+body.light-theme .storage-btn.selected:hover {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+}
+
+
 @media (max-width: 768px) {
   body {
     font-size: 14px;
