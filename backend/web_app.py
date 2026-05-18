@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 load_dotenv()
-from flask import Flask, send_from_directory, request, jsonify, send_file, make_response
+from flask import Flask, send_from_directory, request, jsonify, send_file, make_response, session
 from flask_cors import CORS
 import threading
 import sqlite3
@@ -42,13 +42,11 @@ MAX_PROCESSES_PER_USER = 7
 TIME_OFFSET_HOURS = 3
 
 def generate_csrf_token():
-    from flask import session
     if 'csrf_token' not in session:
         session['csrf_token'] = secrets.token_hex(32)
     return session['csrf_token']
 
 def validate_csrf_token():
-    from flask import session
     token = request.headers.get('X-CSRF-Token')
     if not token:
         return False
@@ -1256,7 +1254,15 @@ def change_password():
     cursor.execute('SELECT password_hash FROM users WHERE id = ?', (user_id,))
     row = cursor.fetchone()
     
-    if not row or not bcrypt.checkpw(current_password.encode('utf-8'), row[0]):
+    if not row:
+        conn.close()
+        return jsonify({'error': 'Пользователь не найден'}), 404
+    
+    stored_hash = row[0]
+    if isinstance(stored_hash, str):
+        stored_hash = stored_hash.encode('utf-8')
+    
+    if not bcrypt.checkpw(current_password.encode('utf-8'), stored_hash):
         conn.close()
         return jsonify({'error': 'Неверный текущий пароль'}), 401
     

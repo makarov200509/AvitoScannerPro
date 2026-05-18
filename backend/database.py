@@ -115,6 +115,9 @@ def authenticate_user(username, password):
     
     if user:
         stored_hash = user[2]
+        if isinstance(stored_hash, str):
+            stored_hash = stored_hash.encode('utf-8')
+        
         if bcrypt.checkpw(password.encode('utf-8'), stored_hash):
             return {
                 'id': user[0],
