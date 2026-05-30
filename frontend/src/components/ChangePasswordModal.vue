@@ -72,9 +72,9 @@ const changePassword = async () => {
     return
   }
   
-  if (form.newPassword.length < 4) {
-    toastStore.addToast('Новый пароль должен содержать минимум 4 символа', 'error')
-    return
+  if (form.newPassword.length < 10) {
+      toastStore.addToast('Новый пароль должен содержать минимум 10 символов', 'error')
+      return
   }
   
   if (form.newPassword !== form.confirmPassword) {

@@ -149,7 +149,25 @@ body.light-theme .btn-secondary:hover {
 
 @media (max-width: 768px) {
   .stats-grid-large {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+  
+  .stat-card-large {
+    padding: 8px 12px !important;
+  }
+  
+  .stat-value {
+    font-size: 18px !important;
+  }
+  
+  .stat-label {
+    font-size: 11px !important;
+  }
+  
+  .btn-sm {
+    padding: 4px 8px !important;
+    font-size: 10px !important;
   }
 }
 </style>

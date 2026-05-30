@@ -22,7 +22,7 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Пароль (минимум 4 символа)</label>
+          <label class="form-label">Пароль (минимум 10 символов)</label>
           <input 
             type="password" 
             class="form-input" 
@@ -93,9 +93,9 @@ const handleRegister = async () => {
     return
   }
   
-  if (form.password.length < 4) {
-    errorMessage.value = 'Пароль должен содержать минимум 4 символа'
-    return
+  if (form.password.length < 10) {
+      errorMessage.value = 'Пароль должен содержать минимум 10 символов'
+      return
   }
   
   if (form.password !== form.confirmPassword) {
@@ -119,7 +119,7 @@ const handleRegister = async () => {
 <style scoped>
 .register-page {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #0a0a0a;
+  background: #404040;
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -128,7 +128,7 @@ const handleRegister = async () => {
 }
 
 body.light-theme .register-page {
-  background: #f5f5f5;
+  background: #3b82f6;
 }
 
 .register-container {

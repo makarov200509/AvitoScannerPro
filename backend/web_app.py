@@ -552,8 +552,8 @@ def register():
     if len(username) < 3:
         return jsonify({'error': 'Имя пользователя должно содержать минимум 3 символа'}), 400
     
-    if len(password) < 4:
-        return jsonify({'error': 'Пароль должен содержать минимум 4 символа'}), 400
+    if len(password) < 10:
+        return jsonify({'error': 'Пароль должен содержать минимум 10 символов'}), 400
     
     try:
         user_id = create_user(username, password)
@@ -1245,8 +1245,8 @@ def change_password():
     if not current_password or not new_password:
         return jsonify({'error': 'Заполните все поля'}), 400
     
-    if len(new_password) < 4:
-        return jsonify({'error': 'Новый пароль должен содержать минимум 4 символа'}), 400
+    if len(new_password) < 10:
+        return jsonify({'error': 'Новый пароль должен содержать минимум 10 символов'}), 400
     
     conn = sqlite3.connect('avito_bot.db', check_same_thread=False)
     cursor = conn.cursor()

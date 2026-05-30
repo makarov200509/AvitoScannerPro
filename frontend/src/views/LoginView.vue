@@ -81,7 +81,7 @@ const handleLogin = async () => {
 <style scoped>
 .login-page {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #0a0a0a;
+  background: #404040     ;
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -90,7 +90,7 @@ const handleLogin = async () => {
 }
 
 body.light-theme .login-page {
-  background: #f5f5f5;
+  background: #3b82f6;
 }
 
 .login-container {
